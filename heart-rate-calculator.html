@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karvonen Heart Rate Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        .calculator {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 600px;
+            box-sizing: border-box;
+        }
+        h2, h3 {
+            color: #333;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            color: #555;
+        }
+        input {
+            width: calc(100% - 20px);
+            padding: 8px;
+            margin-top: 5px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: calc(100% - 20px);
+            box-sizing: border-box;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result, .target-zones {
+            margin-top: 20px;
+            font-size: 1em;
+            color: #007bff;
+        }
+        .table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        .table th, .table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: center;
+        }
+        .table th {
+            background-color: #f2f2f2;
+            color: #333;
+        }
+        .table td:nth-child(3) {
+            color: #007bff; /* Keep THR in blue */
+        }
+        .table td {
+            color: #333; /* Other values in normal color */
+        }
+        .table td:first-child {
+            text-align: left; /* Left-align text in the Target Zone column */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+            <h2>Karvonen Heart Rate Calculator</h2>
+            <form>
+                <label for="age">Age:</label>
+                <input type="number" id="age" name="age" placeholder="Enter your age" required>
+                
+                <label for="rhr">Resting Heart Rate (RHR):</label>
+                <input type="number" id="rhr" name="rhr" placeholder="Enter your resting heart rate" required>
+                
+                <button type="button" onclick="calculateHR()">Calculate</button>
+            </form>
+            <div class="result">Target Heart Rate (THR): <span id="result"></span> bpm</div>
+            <div class="target-zones">
+                <h3>Target Heart Rate Zones</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Target Zone</th>
+                            <th>% Intensity</th>
+                            <th>THR in bpm</th>
+                            <th>RPE (1-10)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="zone-table">
+                        <!-- Dynamic content -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateHR() {
+            let age = document.getElementById("age").value;
+            let rhr = document.getElementById("rhr").value;
+            
+            if (age && rhr) {
+                let mhr = 220 - age;
+                let hrr = mhr - rhr;
+                let result = document.getElementById("result");
+                let zoneTable = document.getElementById("zone-table");
+                zoneTable.innerHTML = ""; // Clear previous results
+
+                displayZones(hrr, parseInt(rhr));
+            } else {
+                document.getElementById("result").innerText = "Please fill in all fields.";
+            }
+        }
+
+        function displayZones(base, rhr) {
+            const zones = [
+                { name: "Zone 1 (Recovery/Easy)", min: 0.5, max: 0.6, rpe: "3 - 4" },
+                { name: "Zone 2 (Aerobic/Base)", min: 0.6, max: 0.7, rpe: "5 - 6" },
+                { name: "Zone 3 (Tempo)", min: 0.7, max: 0.8, rpe: "6 - 7" },
+                { name: "Zone 4 (Lactate Threshold)", min: 0.8, max: 0.9, rpe: "8 - 9" },
+                { name: "Zone 5 (All-Out Effort)", min: 0.9, max: 1, rpe: "9 - 10" }
+            ];
+            let zoneTable = document.getElementById("zone-table");
+            zones.forEach(zone => {
+                let minTHR = Math.round(rhr + base * zone.min);
+                let maxTHR = Math.round(rhr + base * zone.max);
+                let row = `<tr><td>${zone.name}</td><td>${zone.min * 100}% - ${zone.max * 100}%</td><td>${minTHR} - ${maxTHR}</td><td>${zone.rpe}</td></tr>`;
+                zoneTable.innerHTML += row;
+            });
+        }
+    </script>
+</body>
+</html>
